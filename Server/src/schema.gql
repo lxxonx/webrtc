@@ -1,0 +1,45 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Mutation {
+  loginStudent(studentLoginInput: StudentLoginInput!): Student!
+  registerStudent(newStudentData: NewStudentInput!): Student!
+  removeStudentById(id: Float!): Boolean!
+}
+
+input NewStudentInput {
+  birthYear: Float!
+  firstname: String!
+  lastname: String
+  leftSession: Float
+  password: String!
+  username: String!
+}
+
+type Query {
+  getManyStudents(skip: Int = 0, take: Int = 25): [Student!]!
+  getStudentById(id: Float!): Student!
+}
+
+type Student {
+  birthYear: Float!
+  createdAt: DateTime!
+  deletedAt: DateTime
+  firstname: String!
+  id: ID!
+  lastname: String
+  leftSession: Float!
+  updatedAt: DateTime
+  username: ID!
+}
+
+input StudentLoginInput {
+  password: String!
+  username: String!
+}
