@@ -1,3 +1,4 @@
+import { Inject } from "@nestjs/common";
 import {
   ConnectedSocket,
   MessageBody,
@@ -6,17 +7,21 @@ import {
   WebSocketServer,
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
+import { PrismaService } from "./prisma.service";
 
 @WebSocketGateway(80, {
   namespace: "stream",
   cors: { origin: "*", methods: ["GET", "POST"] },
 })
 export class StreamsGateway {
+  constructor(@Inject(PrismaService) private prisma: PrismaService) {}
+
   @WebSocketServer()
   server: Server;
 
   @SubscribeMessage("connection")
-  handleConnection(@ConnectedSocket() client: Socket) {
+  async handleConnection(@ConnectedSocket() client: Socket) {
+    console.log(client);
     return client.emit("me", client.id);
   }
 

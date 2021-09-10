@@ -2,13 +2,12 @@ import { Module } from "@nestjs/common";
 import { GraphQLModule } from "@nestjs/graphql";
 import { join } from "path";
 import { PrismaService } from "./prisma.service";
-import { StudentsModule } from "./students/students.module";
-import { TutorsModule } from "./tutors/tutors.module";
+import { UsersModule } from "./users/users.module";
 import { StreamsGateway } from "./streams.gateway";
+import { AuthModule } from "./auth/auth.module";
 
 @Module({
   imports: [
-    StudentsModule,
     GraphQLModule.forRoot({
       autoSchemaFile: join(process.cwd(), "src/schema.gql"),
       sortSchema: true,
@@ -16,7 +15,8 @@ import { StreamsGateway } from "./streams.gateway";
         "graphql-ws": true,
       },
     }),
-    TutorsModule,
+    UsersModule,
+    AuthModule,
   ],
   providers: [PrismaService, StreamsGateway],
 })

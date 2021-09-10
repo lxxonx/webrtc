@@ -7,28 +7,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Student {
-  id          Int       @id @default(autoincrement())
-  username    String    @unique
-  password    String
-  firstname   String   
-  lastname    String    @default("")
-  birthYear   Int       @db.SmallInt
-  leftSession Int       @default(0)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime? @updatedAt
-  deletedAt   DateTime? 
-  video       Video[]
-}
-
-model Tutor {
-  id          Int       @id @default(autoincrement())
-  password    String
-  firstname   String   
-  lastname    String    @default("")
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  video       Video[]
+model User {
+  id           Int       @id @default(autoincrement())
+  username     String    @unique
+  password     String
+  isTutor      Boolean
+  firstname    String
+  lastname     String?   @default("")
+  birthYear    Int       @db.SmallInt
+  leftSession  Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime? @updatedAt
+  deletedAt    DateTime?
+  roomId       Int?
+  tutorVideo   Video[]   @relation("tutor")
+  studentVideo Video[]   @relation("student")
 }
 
 model Video {
@@ -36,7 +29,7 @@ model Video {
   url       String
   createdAt DateTime @default(now())
   studentId Int
-  student   Student  @relation(fields: [studentId], references: [id])
+  student   User     @relation(name: "student", fields: [studentId], references: [id])
   tutorId   Int
-  tutor     Tutor    @relation(fields: [tutorId], references: [id])
+  tutor     User     @relation(name: "tutor", fields: [tutorId], references: [id])
 }

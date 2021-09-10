@@ -7,13 +7,18 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
-type Mutation {
-  loginStudent(studentLoginInput: StudentLoginInput!): Student!
-  registerStudent(newStudentData: NewStudentInput!): Student!
-  removeStudentById(id: Float!): Boolean!
+input LoginInput {
+  password: String!
+  username: String!
 }
 
-input NewStudentInput {
+type Mutation {
+  createUser(newUserData: NewUserInput!): User!
+  deleteUserById(id: Float!): Boolean!
+  login(loginInput: LoginInput!): Tokens!
+}
+
+input NewUserInput {
   birthYear: Float!
   firstname: String!
   lastname: String
@@ -23,23 +28,24 @@ input NewStudentInput {
 }
 
 type Query {
-  getManyStudents(skip: Int = 0, take: Int = 25): [Student!]!
-  getStudentById(id: Float!): Student!
+  getManyUsers(skip: Int = 0, take: Int = 25): [User!]!
+  getUserById(id: Float!): User!
 }
 
-type Student {
+type Tokens {
+  accessToken: String!
+  refreshToken: String!
+}
+
+type User {
   birthYear: Float!
   createdAt: DateTime!
   deletedAt: DateTime
   firstname: String!
   id: ID!
+  isTutor: Boolean!
   lastname: String
   leftSession: Float!
   updatedAt: DateTime
   username: ID!
-}
-
-input StudentLoginInput {
-  password: String!
-  username: String!
 }
