@@ -1,21 +1,29 @@
-import React, { ReactElement, useEffect, useState } from "react";
+import { useReactiveVar } from "@apollo/client";
+import React, { ReactElement } from "react";
 import { Redirect, Route, Switch } from "react-router-dom";
+import { isLoggedInVar, meVar } from "./apollo/localstate";
+import { useMeQuery } from "./generated/graphql";
+import Chat from "./Pages/Chat";
+import Login from "./Pages/Login";
 import Main from "./Pages/Main";
+import Review from "./Pages/Review";
 
-const StudentPage = () => {
+const LoggedOutPage = () => {
   return (
     <Switch>
-      <Route path="/main" component={Main} />
+      <Route path="/" component={Login} />
 
       <Redirect from="*" to="/" />
     </Switch>
   );
 };
 
-const TutorPage = () => {
+const LoggedInPage = () => {
   return (
     <Switch>
-      <Route path="/main" component={Main} />
+      <Route exact path="/" component={Main} />
+      <Route path="/review" component={Review} />
+      <Route exact path="/chat" component={Chat} />
 
       <Redirect from="*" to="/" />
     </Switch>

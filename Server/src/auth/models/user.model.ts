@@ -12,13 +12,13 @@ export class User {
   firstname: string;
 
   @Field(() => String, { nullable: true })
-  lastname: string;
+  lastname?: string;
 
   @Field()
   birthYear: number;
 
   @Field(() => Boolean)
-  isTutor: Boolean;
+  isTutor: boolean;
 
   @Field(() => Number)
   leftSession: number;

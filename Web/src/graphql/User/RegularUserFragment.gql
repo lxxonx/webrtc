@@ -1,0 +1,9 @@
+fragment RegularUser on User {
+  id
+  username
+  firstname
+  lastname
+  birthYear
+  isTutor
+  leftSession
+}

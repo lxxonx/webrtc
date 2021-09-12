@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import fastifyCookie from "fastify-cookie";
 import { NestFactory } from "@nestjs/core";
 import {
   NestFastifyApplication,
@@ -12,6 +13,9 @@ async function bootstrap() {
     new FastifyAdapter({ logger: true })
   );
 
+  app.register(fastifyCookie, {
+    secret: process.env.COOKIE_SECRET,
+  });
   await app.listen(4000);
 }
 bootstrap();

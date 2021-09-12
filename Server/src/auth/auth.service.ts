@@ -1,20 +1,96 @@
-import { Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { PrismaService } from "src/prisma.service";
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { PrismaService } from "src/prisma/prisma.service";
 import * as argon2 from "argon2";
 import { UnauthorizedException } from "@nestjs/common";
+import { User } from "@prisma/client";
 import { JwtService } from "@nestjs/jwt";
-import { Tokens } from "./models/tokens.model";
+import { NewUserInput } from "./Dto/new-user.input";
+import { UsersArgs } from "./Dto/users.args";
 import { LoginInput } from "./Dto/login.input";
+import { LoginResponse } from "./Dto/loginResponse.model";
 
 @Injectable()
 export class AuthService {
-  constructor(
-    @Inject(PrismaService) private prisma: PrismaService,
-    private jwt: JwtService
-  ) {}
+  constructor(private prisma: PrismaService, private jwt: JwtService) {}
 
-  async login(loginInput: LoginInput): Promise<Tokens> {
-    let user;
+  async verifyToken(token: string): Promise<number> {
+    const { id } = await this.jwt.verifyAsync(token, {
+      secret: process.env.JWT_ACCESS_TOKEN_SECRET,
+    });
+    return id;
+  }
+  async create({
+    username,
+    password,
+    firstname,
+    lastname,
+    birthYear,
+    leftSession,
+  }: NewUserInput): Promise<User> {
+    try {
+      const hash = await argon2.hash(password);
+      return this.prisma.user.create({
+        data: {
+          password: hash,
+          username,
+          firstname,
+          lastname,
+          birthYear,
+          leftSession,
+          isTutor: false,
+        },
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  async findOneById(id: number): Promise<User> {
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (user.deletedAt == null) {
+      return user;
+    }
+    return null;
+  }
+  async findOneByToken(token: string): Promise<User> {
+    const { id } = await this.jwt.verifyAsync(token, {
+      secret: process.env.JWT_ACCESS_TOKEN_SECRET,
+    });
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (!user) {
+      throw new NotFoundException();
+    }
+    if (user.deletedAt == null) {
+      return user;
+    }
+    return null;
+  }
+  async findAll({ take, skip }: UsersArgs): Promise<User[]> {
+    return this.prisma.user.findMany({
+      where: {
+        deletedAt: null,
+      },
+      take,
+      skip,
+      orderBy: { createdAt: "desc" },
+    });
+  }
+
+  async remove(id: number): Promise<boolean> {
+    try {
+      await this.prisma.user.update({
+        where: { id },
+        data: {
+          deletedAt: new Date(),
+        },
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  async login(loginInput: LoginInput): Promise<LoginResponse> {
+    let user: User;
     try {
       user = await this.prisma.user.findUnique({
         where: {
@@ -25,6 +101,7 @@ export class AuthService {
       if (e.code === "P2021") {
         throw new NotFoundException("user not found");
       }
+      console.log(e);
     }
 
     try {
@@ -33,19 +110,21 @@ export class AuthService {
       }
       const accessToken = await this.jwt.signAsync(
         {
-          username: loginInput.username,
+          id: user.id,
         },
-        { expiresIn: "15min", secret: loginInput.password }
+        { expiresIn: "2h", secret: process.env.JWT_ACCESS_TOKEN_SECRET }
       );
       const refreshToken = await this.jwt.signAsync(
         {
-          username: loginInput.username,
+          id: user.id,
         },
-        { expiresIn: "7d", secret: loginInput.password }
+        { expiresIn: "7d", secret: process.env.JWT_ACCESS_TOKEN_SECRET }
       );
+
       return {
         accessToken,
         refreshToken,
+        id: user.id,
       };
     } catch {
       return null;

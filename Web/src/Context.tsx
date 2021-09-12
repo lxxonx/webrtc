@@ -4,21 +4,38 @@ import React, {
   useRef,
   useEffect,
   ReactChild,
+  LegacyRef,
 } from "react";
 import { io } from "socket.io-client";
 import Peer from "simple-peer";
-
-const SocketContext = createContext({});
-const token = localStorage.getItem("token");
+type ContextType = {
+  callAccepted?: boolean;
+  callEnded?: boolean;
+  call?: {
+    signal: string;
+    from: string;
+    name: string;
+    isReceivingCall: boolean;
+  };
+  name?: string;
+  myVideo?: LegacyRef<HTMLVideoElement>;
+  userVideo?: LegacyRef<HTMLVideoElement>;
+  stream?: MediaStream | undefined;
+  setName?: Function;
+  me?: string;
+  callUser?: Function;
+  leaveCall?: Function;
+  answerCall?: Function;
+};
+const SocketContext = createContext<ContextType>({});
 const socket = io({
   path: "ws://localhost:80/stream",
-  auth: {
-    token,
-  },
 });
 // const socket = io("https://warm-wildwood-81069.herokuapp.com");
-
-const ContextProvider = (children: ReactChild) => {
+interface Props {
+  children?: ReactChild;
+}
+const ContextProvider = ({ children }: Props) => {
   const [callAccepted, setCallAccepted] = useState(false);
   const [callEnded, setCallEnded] = useState(false);
   const [stream, setStream] = useState<MediaStream>();
@@ -107,8 +124,8 @@ const ContextProvider = (children: ReactChild) => {
       value={{
         call,
         callAccepted,
-        myVideo,
-        userVideo,
+        myVideo: myVideo as LegacyRef<HTMLVideoElement>,
+        userVideo: userVideo as LegacyRef<HTMLVideoElement>,
         stream,
         name,
         setName,

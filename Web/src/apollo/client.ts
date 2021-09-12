@@ -1,33 +1,18 @@
 import { ApolloClient, NormalizedCacheObject, split } from "@apollo/client";
-import { cache } from "./localState";
+import { cache } from "./localstate";
 import { getMainDefinition } from "@apollo/client/utilities";
 import { WebSocketLink } from "@apollo/client/link/ws";
-import { setContext } from "@apollo/client/link/context";
 import { createHttpLink } from "@apollo/client/link/http";
 
 const httpLink = createHttpLink({
   uri: "http://localhost:4000/graphql",
+  credentials: "include",
 });
 const wsLink = new WebSocketLink({
   uri: "ws://localhost:4000/graphql",
   options: {
     reconnect: false,
-    connectionParams: () => {
-      const token = localStorage.getItem("token");
-      return {
-        token: token ? `${token}` : "",
-      };
-    },
   },
-});
-const authLink = setContext((_, { headers }) => {
-  const token = localStorage.getItem("token");
-  return {
-    headers: {
-      ...headers,
-      token: token ? `${token}` : "",
-    },
-  };
 });
 
 const link = split(
@@ -43,7 +28,7 @@ const link = split(
 );
 const client: ApolloClient<NormalizedCacheObject> = new ApolloClient({
   cache,
-  link: authLink.concat(link),
+  link,
 });
 
 export default client;

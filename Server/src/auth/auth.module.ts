@@ -1,11 +1,16 @@
-import { Module } from "@nestjs/common";
+import { Global, Module } from "@nestjs/common";
 import { JwtModule } from "@nestjs/jwt";
-import { PrismaService } from "src/prisma.service";
 import { AuthResolver } from "./auth.resolvers";
 import { AuthService } from "./auth.service";
 
 @Module({
-  imports: [JwtModule.register({})],
-  providers: [AuthService, PrismaService, AuthResolver],
+  imports: [
+    JwtModule.register({
+      secret: process.env.JWT_ACCESS_TOKEN_SECRET,
+    }),
+  ],
+  providers: [AuthService, AuthResolver],
+  exports: [AuthService],
 })
+@Global()
 export class AuthModule {}

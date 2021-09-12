@@ -11,17 +11,18 @@ CREATE TABLE "User" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3),
     "deletedAt" TIMESTAMP(3),
-    "roomId" INTEGER,
+    "socketId" TEXT DEFAULT E'',
 
     PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "Video" (
+CREATE TABLE "Session" (
     "id" SERIAL NOT NULL,
-    "url" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "studentId" INTEGER NOT NULL,
+    "videoUrl" TEXT,
+    "schedule" TIMESTAMP(3) NOT NULL,
+    "isCreated" BOOLEAN NOT NULL DEFAULT false,
+    "studentId" INTEGER,
     "tutorId" INTEGER NOT NULL,
 
     PRIMARY KEY ("id")
@@ -30,8 +31,11 @@ CREATE TABLE "Video" (
 -- CreateIndex
 CREATE UNIQUE INDEX "User.username_unique" ON "User"("username");
 
--- AddForeignKey
-ALTER TABLE "Video" ADD FOREIGN KEY ("studentId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+-- CreateIndex
+CREATE UNIQUE INDEX "Session.schedule_tutorId_unique" ON "Session"("schedule", "tutorId");
 
 -- AddForeignKey
-ALTER TABLE "Video" ADD FOREIGN KEY ("tutorId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Session" ADD FOREIGN KEY ("studentId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Session" ADD FOREIGN KEY ("tutorId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

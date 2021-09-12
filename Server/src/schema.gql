@@ -13,9 +13,11 @@ input LoginInput {
 }
 
 type Mutation {
+  createSession(schedule: DateTime!): Session!
   createUser(newUserData: NewUserInput!): User!
   deleteUserById(id: Float!): Boolean!
-  login(loginInput: LoginInput!): Tokens!
+  login(loginInput: LoginInput!): User!
+  updateStudent(schedule: DateTime!, studentId: Float, tutorId: Float): Session!
 }
 
 input NewUserInput {
@@ -30,11 +32,18 @@ input NewUserInput {
 type Query {
   getManyUsers(skip: Int = 0, take: Int = 25): [User!]!
   getUserById(id: Float!): User!
+  me: User
 }
 
-type Tokens {
-  accessToken: String!
-  refreshToken: String!
+type Session {
+  id: ID!
+  isCreated: Boolean!
+  schedule: DateTime!
+  student: User
+  studentId: Float
+  tutor: User!
+  tutorId: Float!
+  videoUrl: String
 }
 
 type User {
