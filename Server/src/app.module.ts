@@ -3,7 +3,7 @@ import { GraphQLModule } from "@nestjs/graphql";
 import { join } from "path";
 import { AuthModule } from "./auth/auth.module";
 import { FastifyReply, FastifyRequest } from "fastify";
-import { SessionsModule } from "./sessions/sessions.module";
+import { ClassModule } from "./classes/classes.module";
 import { PrismaModule } from "./prisma/prisma.module";
 import { StreamsModule } from "./streams/streams.module";
 
@@ -25,7 +25,7 @@ import { StreamsModule } from "./streams/streams.module";
       },
     }),
     AuthModule,
-    SessionsModule,
+    ClassModule,
     PrismaModule,
     StreamsModule,
   ],

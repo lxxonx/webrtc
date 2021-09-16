@@ -1,13 +1,13 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
-import { Session } from "./models/session.model";
+import { Class } from "./models/class.model";
 
 @Injectable()
-export class SessionsService {
+export class ClassesService {
   constructor(private prisma: PrismaService) {}
 
-  async createSession(tutorId: number, schedule: Date): Promise<Session> {
-    return this.prisma.session.create({
+  async createClass(tutorId: number, schedule: Date): Promise<Class> {
+    return this.prisma.class.create({
       data: {
         schedule,
         tutorId,
@@ -17,7 +17,7 @@ export class SessionsService {
   }
 
   async updateStudent(studentId: number, tutorId: number, schedule: Date) {
-    return this.prisma.session.update({
+    return this.prisma.class.update({
       where: {
         schedule_tutorId: {
           schedule,

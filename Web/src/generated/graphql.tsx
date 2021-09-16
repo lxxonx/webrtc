@@ -19,6 +19,18 @@ export type Scalars = {
   DateTime: any;
 };
 
+export type Class = {
+  __typename?: 'Class';
+  id: Scalars['ID'];
+  isCreated: Scalars['Boolean'];
+  schedule: Scalars['DateTime'];
+  student?: Maybe<User>;
+  studentId?: Maybe<Scalars['Float']>;
+  tutor: User;
+  tutorId: Scalars['Float'];
+  videoUrl?: Maybe<Scalars['String']>;
+};
+
 export type LoginInput = {
   password: Scalars['String'];
   username: Scalars['String'];
@@ -26,9 +38,16 @@ export type LoginInput = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  createSession: Class;
   createUser: User;
   deleteUserById: Scalars['Boolean'];
   login: User;
+  updateStudent: Class;
+};
+
+
+export type MutationCreateSessionArgs = {
+  schedule: Scalars['DateTime'];
 };
 
 
@@ -46,11 +65,18 @@ export type MutationLoginArgs = {
   loginInput: LoginInput;
 };
 
+
+export type MutationUpdateStudentArgs = {
+  schedule: Scalars['DateTime'];
+  studentId?: Maybe<Scalars['Float']>;
+  tutorId?: Maybe<Scalars['Float']>;
+};
+
 export type NewUserInput = {
   birthYear: Scalars['Float'];
   firstname: Scalars['String'];
   lastname?: Maybe<Scalars['String']>;
-  leftSession?: Maybe<Scalars['Float']>;
+  leftClass?: Maybe<Scalars['Float']>;
   password: Scalars['String'];
   username: Scalars['String'];
 };
@@ -59,7 +85,7 @@ export type Query = {
   __typename?: 'Query';
   getManyUsers: Array<User>;
   getUserById: User;
-  me: User;
+  me?: Maybe<User>;
 };
 
 
@@ -82,7 +108,7 @@ export type User = {
   id: Scalars['ID'];
   isTutor: Scalars['Boolean'];
   lastname?: Maybe<Scalars['String']>;
-  leftSession: Scalars['Float'];
+  leftClass: Scalars['Float'];
   updatedAt?: Maybe<Scalars['DateTime']>;
   username: Scalars['ID'];
 };
@@ -93,14 +119,14 @@ export type LoginMutationVariables = Exact<{
 }>;
 
 
-export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'User', id: string, username: string, firstname: string, lastname?: Maybe<string>, birthYear: number, isTutor: boolean, leftSession: number, createdAt: any } };
+export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'User', id: string, username: string, firstname: string, lastname?: Maybe<string>, birthYear: number, isTutor: boolean, leftClass: number } };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MeQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, username: string, firstname: string, lastname?: Maybe<string>, birthYear: number, isTutor: boolean, leftSession: number, createdAt: any } };
+export type MeQuery = { __typename?: 'Query', me?: Maybe<{ __typename?: 'User', id: string, username: string, firstname: string, lastname?: Maybe<string>, birthYear: number, isTutor: boolean, leftClass: number }> };
 
-export type RegularUserFragment = { __typename?: 'User', id: string, username: string, firstname: string, lastname?: Maybe<string>, birthYear: number, isTutor: boolean, leftSession: number, createdAt: any };
+export type RegularUserFragment = { __typename?: 'User', id: string, username: string, firstname: string, lastname?: Maybe<string>, birthYear: number, isTutor: boolean, leftClass: number };
 
 export const RegularUserFragmentDoc = gql`
     fragment RegularUser on User {
@@ -110,8 +136,7 @@ export const RegularUserFragmentDoc = gql`
   lastname
   birthYear
   isTutor
-  leftSession
-  createdAt
+  leftClass
 }
     `;
 export const LoginDocument = gql`

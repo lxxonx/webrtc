@@ -18,34 +18,28 @@ export class StreamsGateway {
   @WebSocketServer()
   server: Server;
 
-  @SubscribeMessage("connection")
-  async handleConnection(@ConnectedSocket() client: Socket) {
-    return client.emit("me", client.id);
+  @SubscribeMessage("join")
+  async handleJoin(@MessageBody() { classId }) {
+    this.server.socketsJoin(classId);
+    return this.server.to(classId).emit("welcome");
   }
-
+  @SubscribeMessage("offer")
+  handleOffer(@MessageBody() { offer, classId }) {
+    console.log(offer);
+    return this.server.to(classId).emit("offer", offer);
+  }
+  @SubscribeMessage("answer")
+  handleAnswer(@MessageBody() { answer, classId }) {
+    console.log(answer);
+    return this.server.to(classId).emit("answer", answer);
+  }
+  @SubscribeMessage("ice")
+  handleIce(@MessageBody() { ice, classId }) {
+    console.log(ice);
+    return this.server.to(classId).emit("ice", ice);
+  }
   @SubscribeMessage("disconnect")
   handleDisconnection(@ConnectedSocket() client: Socket) {
     return client.broadcast.emit("callEnded");
-  }
-  @SubscribeMessage("callUser")
-  async handleCallUser(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() { signalData, from, name, to }
-  ) {
-    const roomId = await this.streamService.updateSocketId(client);
-    if (roomId) {
-      return this.server.to(to).emit("callUser", {
-        signal: signalData,
-        from,
-        name,
-      });
-    } else {
-      throw new BadRequestException("room doesn't exist");
-    }
-  }
-
-  @SubscribeMessage("answerCall")
-  handleAnswerCall(@MessageBody() { to, signal }) {
-    return this.server.to(to).emit("callAccepted", signal);
   }
 }

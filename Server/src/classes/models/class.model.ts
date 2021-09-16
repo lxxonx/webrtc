@@ -2,9 +2,9 @@ import { Field, ID, ObjectType } from "@nestjs/graphql";
 import { User } from "src/auth/models/user.model";
 
 @ObjectType()
-export class Session {
+export class Class {
   @Field(() => ID)
-  id: number;
+  id: string;
 
   @Field(() => String, { nullable: true })
   videoUrl?: string;

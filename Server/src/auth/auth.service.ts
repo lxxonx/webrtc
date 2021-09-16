@@ -25,7 +25,7 @@ export class AuthService {
     firstname,
     lastname,
     birthYear,
-    leftSession,
+    leftClass,
   }: NewUserInput): Promise<User> {
     try {
       const hash = await argon2.hash(password);
@@ -36,7 +36,7 @@ export class AuthService {
           firstname,
           lastname,
           birthYear,
-          leftSession,
+          leftClass,
           isTutor: false,
         },
       });

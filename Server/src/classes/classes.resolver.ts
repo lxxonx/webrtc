@@ -3,22 +3,22 @@ import { UnauthorizedException } from "@nestjs/common";
 import { Args, Context, Mutation, Resolver } from "@nestjs/graphql";
 import { AuthService } from "src/auth/auth.service";
 import { PrismaService } from "src/prisma/prisma.service";
-import { Session } from "./models/session.model";
-import { SessionsService } from "./sessions.service";
+import { Class } from "./models/class.model";
+import { ClassesService } from "./classes.service";
 
 @Resolver()
-export class SessionsResolver {
+export class ClassesResolver {
   constructor(
-    private readonly sessionsService: SessionsService,
+    private readonly classesService: ClassesService,
     private readonly authService: AuthService,
     private readonly prisma: PrismaService
   ) {}
 
-  @Mutation(() => Session)
+  @Mutation(() => Class)
   async createSession(
     @Args("schedule") schedule: Date,
     @Context() { request }
-  ): Promise<Session> {
+  ): Promise<Class> {
     // only tutor can create a session
     const token = request.cookies.refresh;
     if (!token) {
@@ -33,7 +33,7 @@ export class SessionsResolver {
       throw new UnauthorizedException();
     }
 
-    return this.prisma.session.create({
+    return this.prisma.class.create({
       data: {
         schedule,
         tutorId: user.id,
@@ -41,7 +41,7 @@ export class SessionsResolver {
       include: { tutor: true },
     });
   }
-  @Mutation(() => Session)
+  @Mutation(() => Class)
   async updateStudent(
     @Args("schedule") schedule: Date,
     @Args("tutorId", { nullable: true }) tutorId: number,
@@ -61,7 +61,7 @@ export class SessionsResolver {
         throw new BadRequestException();
       }
       // add student id to session
-      return this.prisma.session.update({
+      return this.prisma.class.update({
         where: {
           schedule_tutorId: {
             schedule,
@@ -79,7 +79,7 @@ export class SessionsResolver {
         throw new BadRequestException();
       }
       // update this user id to session
-      return this.prisma.session.update({
+      return this.prisma.class.update({
         where: {
           schedule_tutorId: {
             schedule,

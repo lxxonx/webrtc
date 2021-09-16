@@ -5,5 +5,5 @@ fragment RegularUser on User {
   lastname
   birthYear
   isTutor
-  leftSession
+  leftClass
 }

@@ -21,7 +21,7 @@ export class User {
   isTutor: boolean;
 
   @Field(() => Number)
-  leftSession: number;
+  leftClass: number;
 
   @Field()
   createdAt: Date;

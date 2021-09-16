@@ -2,6 +2,17 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Class {
+  id: ID!
+  isCreated: Boolean!
+  schedule: DateTime!
+  student: User
+  studentId: Float
+  tutor: User!
+  tutorId: Float!
+  videoUrl: String
+}
+
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
@@ -13,18 +24,18 @@ input LoginInput {
 }
 
 type Mutation {
-  createSession(schedule: DateTime!): Session!
+  createSession(schedule: DateTime!): Class!
   createUser(newUserData: NewUserInput!): User!
   deleteUserById(id: Float!): Boolean!
   login(loginInput: LoginInput!): User!
-  updateStudent(schedule: DateTime!, studentId: Float, tutorId: Float): Session!
+  updateStudent(schedule: DateTime!, studentId: Float, tutorId: Float): Class!
 }
 
 input NewUserInput {
   birthYear: Float!
   firstname: String!
   lastname: String
-  leftSession: Float
+  leftClass: Float
   password: String!
   username: String!
 }
@@ -35,17 +46,6 @@ type Query {
   me: User
 }
 
-type Session {
-  id: ID!
-  isCreated: Boolean!
-  schedule: DateTime!
-  student: User
-  studentId: Float
-  tutor: User!
-  tutorId: Float!
-  videoUrl: String
-}
-
 type User {
   birthYear: Float!
   createdAt: DateTime!
@@ -54,7 +54,7 @@ type User {
   id: ID!
   isTutor: Boolean!
   lastname: String
-  leftSession: Float!
+  leftClass: Float!
   updatedAt: DateTime
   username: ID!
 }

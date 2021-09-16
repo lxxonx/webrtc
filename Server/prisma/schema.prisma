@@ -15,24 +15,23 @@ model User {
   firstname      String
   lastname       String?   @default("")
   birthYear      Int       @db.SmallInt
-  leftSession    Int       @default(0)
+  leftClass    Int       @default(0)
   createdAt      DateTime  @default(now())
   updatedAt      DateTime? @updatedAt
   deletedAt      DateTime?
-  socketId       String?   @default("")
-  tutorSession   Session[] @relation("tutorSession")
-  studentSession Session[] @relation("studentSession")
+  tutorClass   Class[] @relation("tutorClass")
+  studentClass Class[] @relation("studentClass")
 }
 
-model Session {
-  id        Int      @id @default(autoincrement())
+model Class {
+  id        String       @id @default(uuid())
   videoUrl  String?
   schedule  DateTime
   isCreated Boolean  @default(false)
   studentId Int?
-  student   User?    @relation(name: "studentSession", fields: [studentId], references: [id])
+  student   User?    @relation(name: "studentClass", fields: [studentId], references: [id])
   tutorId   Int
-  tutor     User     @relation(name: "tutorSession", fields: [tutorId], references: [id])
+  tutor     User     @relation(name: "tutorClass", fields: [tutorId], references: [id])
 
   @@unique([schedule, tutorId])
 }

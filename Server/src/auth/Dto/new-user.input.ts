@@ -24,5 +24,5 @@ export class NewUserInput {
 
   @Field(() => Number, { nullable: true })
   @IsOptional()
-  leftSession?: number;
+  leftClass?: number;
 }

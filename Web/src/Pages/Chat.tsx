@@ -1,6 +1,6 @@
 import { Button, Grid, Typography } from "@material-ui/core";
 import { Phone, PhoneDisabled } from "@material-ui/icons";
-import React, { ReactElement, useState, useEffect } from "react";
+import React, { ReactElement, useState, useEffect, FormEvent } from "react";
 import { useRef } from "react";
 import openSocket from "socket.io-client";
 import Layout from "../Components/Layout";
@@ -24,146 +24,139 @@ const socket = openSocket("ws://localhost:80/stream", {
   },
 });
 function Chat({}: Props): ReactElement {
-  const sessionId = 3;
-  const mequery = useReactiveVar(meVar);
-  const [callAccepted, setCallAccepted] = useState(false);
-  const [callEnded, setCallEnded] = useState(false);
+  const me = useReactiveVar(meVar);
   const [stream, setStream] = useState<MediaStream>();
+  const [myDataChannel, setMyDataChannel] = useState<RTCDataChannel>();
   const [name, setName] = useState("");
-  const [call, setCall] = useState({
-    signal: "",
-    from: "",
-    name: "",
-    isReceivingCall: false,
-  });
-  const [me, setMe] = useState("");
-
+  const [myPeerConnection, setMyPeerConnection] = useState<RTCPeerConnection>(
+    new RTCPeerConnection({
+      iceServers: [
+        {
+          urls: [
+            "stun:stun.1.google.com:19302",
+            "stun:stun1.1.google.com:19302",
+            "stun:stun2.1.google.com:19302",
+            "stun:stun3.1.google.com:19302",
+            "stun:stun4.1.google.com:19302",
+          ],
+        },
+      ],
+    })
+  );
+  const [classId, setClassId] = useState(
+    "8d5f805a-bd0c-424e-900d-a645ac0e2555"
+  );
   const myVideo = useRef<HTMLVideoElement>() as any;
-  const userVideo = useRef<HTMLVideoElement>() as any;
-  const connectionRef = useRef<Peer.Instance>();
+  const peerVideo = useRef<HTMLVideoElement>() as any;
+
   useEffect(() => {
-    navigator.mediaDevices
-      .getUserMedia({ video: true, audio: true })
-      .then((currentStream) => {
-        setStream(currentStream);
+    socket.on("welcome", async () => {
+      const dataChannel = myPeerConnection.createDataChannel("chat");
+      setMyDataChannel(dataChannel);
+      dataChannel.addEventListener("message", (event) =>
+        console.log(event.data)
+      );
+      console.log("made data channel");
+      const offer = await myPeerConnection.createOffer();
+      myPeerConnection.setLocalDescription(offer);
+      console.log("sent the offer");
+      socket.emit("offer", { offer, classId });
+    });
 
-        myVideo.current!.srcObject = currentStream;
+    socket.on("offer", async ({ offer }) => {
+      myPeerConnection.addEventListener("datachannel", (event) => {
+        setMyDataChannel(event.channel);
+        myDataChannel?.addEventListener("message", (event) => {
+          console.log(event.data);
+        });
       });
-    if (mequery) {
-      setName(mequery.firstname + mequery.lastname);
+      console.log("received the offer");
+      myPeerConnection.setRemoteDescription(offer);
+      const answer = await myPeerConnection.createAnswer();
+      myPeerConnection.setLocalDescription(answer);
+      socket.emit("answer", { answer, classId });
+      console.log("sent the answer");
+    });
+    socket.on("answer", ({ answer }) => {
+      console.log("received the answer");
+      myPeerConnection.setRemoteDescription(answer);
+    });
+    socket.on("ice", ({ ice }) => {
+      console.log("received candidate");
+      myPeerConnection.addIceCandidate(ice);
+    });
+  }, [classId, myPeerConnection, myDataChannel]);
+
+  const getMedia = async () => {
+    try {
+      const currentStream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+        video: true,
+      });
+      setStream(currentStream);
+      myVideo.current!.srcObject = currentStream;
+    } catch (e) {
+      console.log(e);
     }
-    socket.on("me", (id) => {
-      setMe(id);
-    });
-    socket.on("callUser", ({ from, name: callerName, signal }) => {
-      setCall({
-        isReceivingCall: true,
-        from,
-        name: callerName,
-        signal,
-      });
-    });
-  }, []);
-
-  const answerCall = () => {
-    setCallAccepted(true);
-
-    const peer = new Peer({ initiator: false, trickle: false, stream });
-
-    peer.on("signal", (data) => {
-      socket.emit("answerCall", { signal: data, to: call.from });
-    });
-
-    peer.on("stream", (currentStream) => {
-      userVideo.current!.srcObject = currentStream;
-    });
-
-    peer.signal(call.signal);
-
-    connectionRef.current = peer;
   };
 
-  const callUser = () => {
-    const peer = new Peer({ initiator: true, trickle: false, stream });
-
-    peer.on("signal", (data) => {
-      socket.emit("callUser", {
-        signalData: data,
-        from: me,
-        name,
-        sessionId,
-      });
-    });
-
-    peer.on("stream", (currentStream) => {
-      userVideo.current!.srcObject = currentStream;
-    });
-
-    socket.on("callAccepted", (signal) => {
-      setCallAccepted(true);
-
-      peer.signal(signal);
-    });
-
-    connectionRef.current = peer;
+  const initCall = async () => {
+    await getMedia();
+    makeConnection();
+  };
+  const handleWelcomeSubmit = async (event: any) => {
+    event.preventDefault();
+    await initCall();
+    socket.emit("join", classId);
   };
 
-  const leaveCall = () => {
-    setCallEnded(true);
-
-    connectionRef.current?.destroy();
-
-    window.location.reload();
+  const makeConnection = () => {
+    myPeerConnection.addEventListener("icecandidate", handleIce);
+    myPeerConnection.addEventListener("addstream", handleAddStream);
+  };
+  const handleIce = (data: any) => {
+    console.log("sent candidate");
+    socket.emit("ice", { ice: data.candidate, classId });
+  };
+  const handleAddStream = (data: any) => {
+    peerVideo.current!.srcObject = data.stream;
   };
 
   return (
     <Layout>
       <Grid container>
+        <button onClick={handleWelcomeSubmit}>welcome</button>
         {stream && (
           <Grid item xs={12} md={6}>
             <Typography variant="h5" gutterBottom>
-              {name || "Name"}
+              {me?.firstname || "Name"}
             </Typography>
             <Video playsInline muted ref={myVideo} autoPlay />
           </Grid>
         )}
-        {callAccepted && !callEnded && (
-          <Grid item xs={12} md={6}>
-            <Typography variant="h5" gutterBottom>
-              {call?.name || "Name"}
-            </Typography>
-            <Video playsInline ref={userVideo} autoPlay />
-          </Grid>
-        )}
-        {call.isReceivingCall && !callAccepted && (
-          <div style={{ display: "flex", justifyContent: "space-around" }}>
-            <h1>{call.name} is calling:</h1>
-            <Button variant="contained" color="primary" onClick={answerCall}>
-              Answer
-            </Button>
-          </div>
-        )}
-        {callAccepted && !callEnded ? (
-          <Button
-            variant="contained"
-            color="secondary"
-            startIcon={<PhoneDisabled fontSize="large" />}
-            fullWidth
-            onClick={leaveCall}
-          >
-            Hang Up
-          </Button>
-        ) : (
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<Phone fontSize="large" />}
-            fullWidth
-            onClick={() => callUser()}
-          >
-            Call
-          </Button>
-        )}
+        <Grid item xs={12} md={6}>
+          <Typography variant="h5" gutterBottom>
+            {"Name"}
+          </Typography>
+          <Video playsInline ref={peerVideo} autoPlay />
+        </Grid>
+
+        <Button
+          variant="contained"
+          color="secondary"
+          startIcon={<PhoneDisabled fontSize="large" />}
+          fullWidth
+        >
+          Hang Up
+        </Button>
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<Phone fontSize="large" />}
+          fullWidth
+        >
+          Call
+        </Button>
       </Grid>
     </Layout>
   );

@@ -33,7 +33,7 @@
     "@nestjs/platform-fastify": "^8.0.6",
     "@nestjs/platform-socket.io": "^8.0.6",
     "@nestjs/websockets": "^8.0.6",
-    "@prisma/client": "^2.30.3",
+    "@prisma/client": "^3.0.2",
     "apollo-server-core": "^3.3.0",
     "apollo-server-fastify": "^3.3.0",
     "argon2": "^0.28.2",
