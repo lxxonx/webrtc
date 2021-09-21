@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
-import * as Apollo from '@apollo/client';
 import * as React from 'react';
+import * as Apollo from '@apollo/client';
 import * as ApolloReactComponents from '@apollo/client/react/components';
 export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -83,6 +83,7 @@ export type NewUserInput = {
 
 export type Query = {
   __typename?: 'Query';
+  getManyClassesByUser: Array<Class>;
   getManyUsers: Array<User>;
   getUserById: User;
   me?: Maybe<User>;
@@ -113,6 +114,11 @@ export type User = {
   username: Scalars['ID'];
 };
 
+export type GetManyClassesByUserQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetManyClassesByUserQuery = { __typename?: 'Query', getManyClassesByUser: Array<{ __typename?: 'Class', id: string, tutor: { __typename?: 'User', id: string, firstname: string } }> };
+
 export type LoginMutationVariables = Exact<{
   username: Scalars['String'];
   password: Scalars['String'];
@@ -139,6 +145,50 @@ export const RegularUserFragmentDoc = gql`
   leftClass
 }
     `;
+export const GetManyClassesByUserDocument = gql`
+    query GetManyClassesByUser {
+  getManyClassesByUser {
+    id
+    tutor {
+      id
+      firstname
+    }
+  }
+}
+    `;
+export type GetManyClassesByUserComponentProps = Omit<ApolloReactComponents.QueryComponentOptions<GetManyClassesByUserQuery, GetManyClassesByUserQueryVariables>, 'query'>;
+
+    export const GetManyClassesByUserComponent = (props: GetManyClassesByUserComponentProps) => (
+      <ApolloReactComponents.Query<GetManyClassesByUserQuery, GetManyClassesByUserQueryVariables> query={GetManyClassesByUserDocument} {...props} />
+    );
+    
+
+/**
+ * __useGetManyClassesByUserQuery__
+ *
+ * To run a query within a React component, call `useGetManyClassesByUserQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetManyClassesByUserQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetManyClassesByUserQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetManyClassesByUserQuery(baseOptions?: Apollo.QueryHookOptions<GetManyClassesByUserQuery, GetManyClassesByUserQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetManyClassesByUserQuery, GetManyClassesByUserQueryVariables>(GetManyClassesByUserDocument, options);
+      }
+export function useGetManyClassesByUserLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetManyClassesByUserQuery, GetManyClassesByUserQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetManyClassesByUserQuery, GetManyClassesByUserQueryVariables>(GetManyClassesByUserDocument, options);
+        }
+export type GetManyClassesByUserQueryHookResult = ReturnType<typeof useGetManyClassesByUserQuery>;
+export type GetManyClassesByUserLazyQueryHookResult = ReturnType<typeof useGetManyClassesByUserLazyQuery>;
+export type GetManyClassesByUserQueryResult = Apollo.QueryResult<GetManyClassesByUserQuery, GetManyClassesByUserQueryVariables>;
 export const LoginDocument = gql`
     mutation Login($username: String!, $password: String!) {
   login(loginInput: {username: $username, password: $password}) {

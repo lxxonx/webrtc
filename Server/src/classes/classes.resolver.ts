@@ -1,6 +1,6 @@
 import { BadRequestException } from "@nestjs/common";
 import { UnauthorizedException } from "@nestjs/common";
-import { Args, Context, Mutation, Resolver } from "@nestjs/graphql";
+import { Args, Context, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { AuthService } from "src/auth/auth.service";
 import { PrismaService } from "src/prisma/prisma.service";
 import { Class } from "./models/class.model";
@@ -14,6 +14,7 @@ export class ClassesResolver {
     private readonly prisma: PrismaService
   ) {}
 
+  // tutor side
   @Mutation(() => Class)
   async createSession(
     @Args("schedule") schedule: Date,
@@ -41,6 +42,33 @@ export class ClassesResolver {
       include: { tutor: true },
     });
   }
+
+  @Query(() => [Class])
+  async getManyClassesByUser(@Context() { request }): Promise<Array<Class>> {
+    // get class list by tutor
+    const token = request.cookies.refresh;
+    if (!token) {
+      throw new UnauthorizedException();
+    }
+    const user = await this.authService.findOneByToken(token);
+    // not tutor? throw error
+    if (!user) {
+      throw new BadRequestException();
+    }
+    if (!user.isTutor) {
+      return this.prisma.class.findMany({
+        where: { studentId: user.id },
+        include: { student: true, tutor: true },
+      });
+    } else {
+      return this.prisma.class.findMany({
+        where: { tutorId: user.id },
+        include: { student: true, tutor: true },
+      });
+    }
+  }
+
+  // student side
   @Mutation(() => Class)
   async updateStudent(
     @Args("schedule") schedule: Date,
@@ -92,6 +120,7 @@ export class ClassesResolver {
       });
     }
   }
+
   createRoom() {
     // create room id
   }

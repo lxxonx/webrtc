@@ -1,4 +1,3 @@
-import { BadRequestException } from "@nestjs/common";
 import {
   ConnectedSocket,
   MessageBody,
@@ -11,31 +10,54 @@ import { StreamsService } from "./streams.service";
 
 @WebSocketGateway(80, {
   namespace: "stream",
-  cors: { origin: "*", methods: ["GET", "POST"] },
+  cors: {
+    origin: "*", //"http://localhost:3000"
+    methods: ["GET", "POST"],
+    // credentials: "include",
+  },
 })
 export class StreamsGateway {
   constructor(private readonly streamService: StreamsService) {}
   @WebSocketServer()
   server: Server;
+  @SubscribeMessage("connection")
+  handleConnection(@ConnectedSocket() client: Socket) {
+    console.log(client.id);
+    console.log(client.handshake.headers);
+    return client.emit("me", client.id);
+  }
+
+  @SubscribeMessage("callUser")
+  handleCallUser(@MessageBody() { userToCall, signalData, from, name }) {
+    return this.server
+      .to(userToCall)
+      .emit("callUser", { signal: signalData, from, name });
+  }
+
+  @SubscribeMessage("answerCall")
+  handleAnswerCall(@MessageBody() { to, signal }) {
+    return this.server.to(to).emit("callAccepted", signal);
+  }
 
   @SubscribeMessage("join")
-  async handleJoin(@MessageBody() { classId }) {
-    this.server.socketsJoin(classId);
+  async handleJoin(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() { classId }
+  ) {
+    console.log(classId);
+    client.join(classId);
     return this.server.to(classId).emit("welcome");
   }
   @SubscribeMessage("offer")
   handleOffer(@MessageBody() { offer, classId }) {
-    console.log(offer);
     return this.server.to(classId).emit("offer", offer);
   }
   @SubscribeMessage("answer")
   handleAnswer(@MessageBody() { answer, classId }) {
-    console.log(answer);
     return this.server.to(classId).emit("answer", answer);
   }
   @SubscribeMessage("ice")
   handleIce(@MessageBody() { ice, classId }) {
-    console.log(ice);
     return this.server.to(classId).emit("ice", ice);
   }
   @SubscribeMessage("disconnect")

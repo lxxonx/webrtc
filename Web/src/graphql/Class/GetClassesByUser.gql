@@ -1,0 +1,9 @@
+query GetManyClassesByUser {
+  getManyClassesByUser {
+    id
+    tutor {
+      id
+      firstname
+    }
+  }
+}

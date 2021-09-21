@@ -41,6 +41,7 @@ input NewUserInput {
 }
 
 type Query {
+  getManyClassesByUser: [Class!]!
   getManyUsers(skip: Int = 0, take: Int = 25): [User!]!
   getUserById(id: Float!): User!
   me: User

@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import Peer from 'simple-peer';
 import Cookies from 'js-cookie';
+import { useMeQuery } from './generated/graphql';
 
 const SocketContext = createContext();
 const token = Cookies.get('refresh');
@@ -19,13 +20,14 @@ const ContextProvider = ({ children }) => {
   const [callAccepted, setCallAccepted] = useState(false);
   const [callEnded, setCallEnded] = useState(false);
   const [stream, setStream] = useState();
-  const [name, setName] = useState('');
+  const { data } = useMeQuery();
   const [call, setCall] = useState({});
-  const [me, setMe] = useState('');
+  const [myId, setMyId] = useState('');
   const { classId } = useParams();
   const myVideo = useRef();
   const userVideo = useRef();
   const connectionRef = useRef();
+
   useEffect(() => {
     navigator.mediaDevices
       .getUserMedia({ video: true, audio: true })
@@ -35,8 +37,8 @@ const ContextProvider = ({ children }) => {
         myVideo.current.srcObject = currentStream;
       });
 
-    socket.on('me', (id) => {
-      setMe(id);
+    socket.on('me', (myId) => {
+      setMyId(myId);
       socket.emit('join', { classId });
     });
 
@@ -71,8 +73,8 @@ const ContextProvider = ({ children }) => {
       socket.emit('callUser', {
         userToCall: id,
         signalData: data,
-        from: me,
-        name,
+        from: myId,
+        name: data?.me?.firstname,
       });
     });
 
@@ -93,8 +95,6 @@ const ContextProvider = ({ children }) => {
     setCallEnded(true);
 
     connectionRef.current.destroy();
-
-    window.location.reload();
   };
 
   return (
@@ -105,10 +105,9 @@ const ContextProvider = ({ children }) => {
         myVideo,
         userVideo,
         stream,
-        name,
-        setName,
+        firstname: data?.me?.firstname,
         callEnded,
-        me,
+        myId,
         callUser,
         leaveCall,
         answerCall,

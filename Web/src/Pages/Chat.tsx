@@ -9,10 +9,12 @@ const Chat = () => {
   return (
     <Layout>
       <ContextProvider>
-        <VideoPlayer />
-        <Sidebar>
-          <Notifications />
-        </Sidebar>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <VideoPlayer />
+          <Sidebar>
+            <Notifications />
+          </Sidebar>
+        </div>
       </ContextProvider>
     </Layout>
   );

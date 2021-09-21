@@ -4,6 +4,7 @@ import { Redirect, Route, Switch } from 'react-router-dom';
 import { isLoggedInVar, meVar } from './apollo/localstate';
 import { useMeQuery } from './generated/graphql';
 import Chat from './pages/Chat';
+import ChatList from './pages/ChatList';
 import Login from './pages/Login';
 import Main from './pages/Main';
 import Review from './pages/Review';
@@ -22,6 +23,7 @@ const LoggedInPage = () => {
     <Switch>
       <Route exact path="/" component={Main} />
       <Route path="/chat/:classId" component={Chat} />
+      <Route exact path="/chat" component={ChatList} />
       <Route path="/review" component={Review} />
 
       <Redirect from="*" to="/" />
