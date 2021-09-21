@@ -1,5 +1,5 @@
-import React, { ReactElement } from "react";
-import Layout from "../Components/Layout";
+import React, { ReactElement } from 'react';
+import Layout from '../components/Layout';
 
 interface Props {}
 

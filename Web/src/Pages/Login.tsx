@@ -1,10 +1,10 @@
-import React, { ReactElement } from "react";
-import styled from "styled-components";
-import { useLoginMutation } from "../generated/graphql";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { isLoggedInVar, meVar } from "../apollo/localstate";
+import React, { ReactElement } from 'react';
+import styled from 'styled-components';
+import { useLoginMutation } from '../generated/graphql';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { isLoggedInVar } from '../apollo/localstate';
 
-const Form = styled("form")`
+const Form = styled('form')`
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -27,10 +27,9 @@ function Login({}: Props): ReactElement {
     register,
     handleSubmit,
     formState: { errors },
-    setError,
   } = useForm<FormInputs>({
-    mode: "onSubmit",
-    reValidateMode: "onChange",
+    mode: 'onSubmit',
+    reValidateMode: 'onChange',
     shouldFocusError: true,
   });
   const onSubmit: SubmitHandler<FormInputs> = async (data) => {
@@ -51,7 +50,7 @@ function Login({}: Props): ReactElement {
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
       <input
-        {...register("username", { required: true })}
+        {...register('username', { required: true })}
         type="text"
         autoCapitalize="off"
         autoComplete="off"
@@ -60,7 +59,7 @@ function Login({}: Props): ReactElement {
       {errors.username && <p>{errors.username.message}</p>}
 
       <input
-        {...register("password", { required: true })}
+        {...register('password', { required: true })}
         type="password"
         autoCapitalize="off"
         autoComplete="off"

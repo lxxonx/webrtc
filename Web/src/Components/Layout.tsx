@@ -1,15 +1,15 @@
-import { Box, Button } from "@material-ui/core";
-import React, { ReactElement } from "react";
-import { ReactChild } from "react";
-import { Link } from "react-router-dom";
-import styled from "styled-components";
+import { Box, Button } from '@material-ui/core';
+import React, { ReactElement } from 'react';
+import { ReactChild } from 'react';
+import { Link } from 'react-router-dom';
+import styled from 'styled-components';
 
-const Wrapper = styled("div")`
+const Wrapper = styled('div')`
   display: flex;
   height: 100%;
 `;
 
-const Sidebar = styled("div")`
+const Sidebar = styled('div')`
   margin: 0;
   padding: 4px 16px;
   background-color: purple;
