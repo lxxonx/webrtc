@@ -1,8 +1,9 @@
 import React, { ReactElement } from 'react';
 import styled from 'styled-components';
-import { useLoginMutation } from '../generated/graphql';
+import { useLoginStudentMutation } from '../generated/graphql';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { isLoggedInVar } from '../apollo/localstate';
+import { useHistory } from 'react-router-dom';
 
 const Form = styled('form')`
   display: flex;
@@ -20,8 +21,9 @@ type FormInputs = {
 
 interface Props {}
 
-function Login({}: Props): ReactElement {
-  const [loginMutation] = useLoginMutation();
+function StudentLogin({}: Props): ReactElement {
+  const history = useHistory();
+  const [loginMutation] = useLoginStudentMutation();
 
   const {
     register,
@@ -40,13 +42,15 @@ function Login({}: Props): ReactElement {
         password,
       },
       update: (_, { data }) => {
-        if (data?.login) {
+        if (data?.loginStudent) {
           isLoggedInVar(true);
         }
       },
     });
   };
-
+  const moveToTutorLoginOnClick = () => {
+    history.push('/login/tutor');
+  };
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
       <input
@@ -66,10 +70,12 @@ function Login({}: Props): ReactElement {
         placeholder="password"
       />
       {errors.password && <p>{errors.password.message}</p>}
-
+      <button type="button" onClick={moveToTutorLoginOnClick}>
+        are you tutor?
+      </button>
       <button type="submit">login</button>
     </Form>
   );
 }
 
-export default Login;
+export default StudentLogin;

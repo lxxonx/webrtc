@@ -22,8 +22,6 @@ export class StreamsGateway {
   server: Server;
   @SubscribeMessage("connection")
   handleConnection(@ConnectedSocket() client: Socket) {
-    console.log(client.id);
-    console.log(client.handshake.headers);
     return client.emit("me", client.id);
   }
 
@@ -44,9 +42,10 @@ export class StreamsGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() { classId }
   ) {
-    console.log(classId);
     client.join(classId);
-    return this.server.to(classId).emit("welcome");
+    const clients = client.client;
+    console.log(clients);
+    return this.server.to(classId).emit("welcome", ...client.rooms);
   }
   @SubscribeMessage("offer")
   handleOffer(@MessageBody() { offer, classId }) {

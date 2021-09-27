@@ -23,53 +23,64 @@ export type Class = {
   __typename?: 'Class';
   id: Scalars['ID'];
   isCreated: Scalars['Boolean'];
+  messages: Array<Message>;
   schedule: Scalars['DateTime'];
-  student?: Maybe<User>;
+  student?: Maybe<Student>;
   studentId?: Maybe<Scalars['Float']>;
-  tutor: User;
+  tutor: Tutor;
   tutorId: Scalars['Float'];
   videoUrl?: Maybe<Scalars['String']>;
 };
 
 export type LoginInput = {
+  isTutor?: Maybe<Scalars['Boolean']>;
   password: Scalars['String'];
   username: Scalars['String'];
 };
 
+export type Message = {
+  __typename?: 'Message';
+  class: Class;
+  classId: Scalars['String'];
+  createdAt: Scalars['DateTime'];
+  deletedAt: Scalars['DateTime'];
+  id: Scalars['ID'];
+  text: Scalars['String'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
-  createSession: Class;
-  createUser: User;
-  deleteUserById: Scalars['Boolean'];
-  login: User;
-  updateStudent: Class;
+  createClass: Class;
+  createStudent: Student;
+  createTutor: Tutor;
+  loginStudent: Student;
+  loginTutor: Tutor;
+  logout: Scalars['Boolean'];
 };
 
 
-export type MutationCreateSessionArgs = {
+export type MutationCreateClassArgs = {
   schedule: Scalars['DateTime'];
 };
 
 
-export type MutationCreateUserArgs = {
-  newUserData: NewUserInput;
+export type MutationCreateStudentArgs = {
+  newStudentData: NewUserInput;
 };
 
 
-export type MutationDeleteUserByIdArgs = {
-  id: Scalars['Float'];
+export type MutationCreateTutorArgs = {
+  newTutorData: NewUserInput;
 };
 
 
-export type MutationLoginArgs = {
+export type MutationLoginStudentArgs = {
   loginInput: LoginInput;
 };
 
 
-export type MutationUpdateStudentArgs = {
-  schedule: Scalars['DateTime'];
-  studentId?: Maybe<Scalars['Float']>;
-  tutorId?: Maybe<Scalars['Float']>;
+export type MutationLoginTutorArgs = {
+  loginInput: LoginInput;
 };
 
 export type NewUserInput = {
@@ -83,71 +94,100 @@ export type NewUserInput = {
 
 export type Query = {
   __typename?: 'Query';
-  getManyClassesByUser: Array<Class>;
-  getManyUsers: Array<User>;
-  getUserById: User;
-  me?: Maybe<User>;
+  getManyClassesByTutor: Array<Class>;
+  getStudentById: Student;
+  getTutorById: Tutor;
+  me: Tutor;
 };
 
 
-export type QueryGetManyUsersArgs = {
-  skip?: Maybe<Scalars['Int']>;
-  take?: Maybe<Scalars['Int']>;
-};
-
-
-export type QueryGetUserByIdArgs = {
+export type QueryGetStudentByIdArgs = {
   id: Scalars['Float'];
 };
 
-export type User = {
-  __typename?: 'User';
+
+export type QueryGetTutorByIdArgs = {
+  id: Scalars['Float'];
+};
+
+export type Student = {
+  __typename?: 'Student';
   birthYear: Scalars['Float'];
+  classes?: Maybe<Array<Class>>;
   createdAt: Scalars['DateTime'];
   deletedAt?: Maybe<Scalars['DateTime']>;
   firstname: Scalars['String'];
   id: Scalars['ID'];
-  isTutor: Scalars['Boolean'];
   lastname?: Maybe<Scalars['String']>;
   leftClass: Scalars['Float'];
   updatedAt?: Maybe<Scalars['DateTime']>;
   username: Scalars['ID'];
 };
 
-export type GetManyClassesByUserQueryVariables = Exact<{ [key: string]: never; }>;
+export type Tutor = {
+  __typename?: 'Tutor';
+  birthYear: Scalars['Float'];
+  classes?: Maybe<Array<Class>>;
+  createdAt: Scalars['DateTime'];
+  firstname: Scalars['String'];
+  id: Scalars['ID'];
+  lastname?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['DateTime']>;
+  username: Scalars['String'];
+};
+
+export type GetManyClassesByTutorQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetManyClassesByUserQuery = { __typename?: 'Query', getManyClassesByUser: Array<{ __typename?: 'Class', id: string, tutor: { __typename?: 'User', id: string, firstname: string } }> };
+export type GetManyClassesByTutorQuery = { __typename?: 'Query', getManyClassesByTutor: Array<{ __typename?: 'Class', id: string, tutor: { __typename?: 'Tutor', id: string, firstname: string } }> };
 
-export type LoginMutationVariables = Exact<{
+export type LoginStudentMutationVariables = Exact<{
   username: Scalars['String'];
   password: Scalars['String'];
 }>;
 
 
-export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'User', id: string, username: string, firstname: string, lastname?: Maybe<string>, birthYear: number, isTutor: boolean, leftClass: number } };
+export type LoginStudentMutation = { __typename?: 'Mutation', loginStudent: { __typename?: 'Student', id: string, username: string, firstname: string, lastname?: Maybe<string>, birthYear: number, leftClass: number } };
+
+export type RegularStudentFragment = { __typename?: 'Student', id: string, username: string, firstname: string, lastname?: Maybe<string>, birthYear: number, leftClass: number };
+
+export type LoginTutorMutationVariables = Exact<{
+  username: Scalars['String'];
+  password: Scalars['String'];
+}>;
+
+
+export type LoginTutorMutation = { __typename?: 'Mutation', loginTutor: { __typename?: 'Tutor', id: string, username: string, firstname: string, lastname?: Maybe<string>, birthYear: number } };
+
+export type RegularTutorFragment = { __typename?: 'Tutor', id: string, username: string, firstname: string, lastname?: Maybe<string>, birthYear: number };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MeQuery = { __typename?: 'Query', me?: Maybe<{ __typename?: 'User', id: string, username: string, firstname: string, lastname?: Maybe<string>, birthYear: number, isTutor: boolean, leftClass: number }> };
+export type MeQuery = { __typename?: 'Query', me: { __typename?: 'Tutor', id: string, username: string, firstname: string, lastname?: Maybe<string>, birthYear: number } };
 
-export type RegularUserFragment = { __typename?: 'User', id: string, username: string, firstname: string, lastname?: Maybe<string>, birthYear: number, isTutor: boolean, leftClass: number };
-
-export const RegularUserFragmentDoc = gql`
-    fragment RegularUser on User {
+export const RegularStudentFragmentDoc = gql`
+    fragment RegularStudent on Student {
   id
   username
   firstname
   lastname
   birthYear
-  isTutor
   leftClass
 }
     `;
-export const GetManyClassesByUserDocument = gql`
-    query GetManyClassesByUser {
-  getManyClassesByUser {
+export const RegularTutorFragmentDoc = gql`
+    fragment RegularTutor on Tutor {
+  id
+  username
+  firstname
+  lastname
+  birthYear
+}
+    `;
+export const GetManyClassesByTutorDocument = gql`
+    query GetManyClassesByTutor {
+  getManyClassesByTutor {
     id
     tutor {
       id
@@ -156,86 +196,130 @@ export const GetManyClassesByUserDocument = gql`
   }
 }
     `;
-export type GetManyClassesByUserComponentProps = Omit<ApolloReactComponents.QueryComponentOptions<GetManyClassesByUserQuery, GetManyClassesByUserQueryVariables>, 'query'>;
+export type GetManyClassesByTutorComponentProps = Omit<ApolloReactComponents.QueryComponentOptions<GetManyClassesByTutorQuery, GetManyClassesByTutorQueryVariables>, 'query'>;
 
-    export const GetManyClassesByUserComponent = (props: GetManyClassesByUserComponentProps) => (
-      <ApolloReactComponents.Query<GetManyClassesByUserQuery, GetManyClassesByUserQueryVariables> query={GetManyClassesByUserDocument} {...props} />
+    export const GetManyClassesByTutorComponent = (props: GetManyClassesByTutorComponentProps) => (
+      <ApolloReactComponents.Query<GetManyClassesByTutorQuery, GetManyClassesByTutorQueryVariables> query={GetManyClassesByTutorDocument} {...props} />
     );
     
 
 /**
- * __useGetManyClassesByUserQuery__
+ * __useGetManyClassesByTutorQuery__
  *
- * To run a query within a React component, call `useGetManyClassesByUserQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetManyClassesByUserQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetManyClassesByTutorQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetManyClassesByTutorQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetManyClassesByUserQuery({
+ * const { data, loading, error } = useGetManyClassesByTutorQuery({
  *   variables: {
  *   },
  * });
  */
-export function useGetManyClassesByUserQuery(baseOptions?: Apollo.QueryHookOptions<GetManyClassesByUserQuery, GetManyClassesByUserQueryVariables>) {
+export function useGetManyClassesByTutorQuery(baseOptions?: Apollo.QueryHookOptions<GetManyClassesByTutorQuery, GetManyClassesByTutorQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetManyClassesByUserQuery, GetManyClassesByUserQueryVariables>(GetManyClassesByUserDocument, options);
+        return Apollo.useQuery<GetManyClassesByTutorQuery, GetManyClassesByTutorQueryVariables>(GetManyClassesByTutorDocument, options);
       }
-export function useGetManyClassesByUserLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetManyClassesByUserQuery, GetManyClassesByUserQueryVariables>) {
+export function useGetManyClassesByTutorLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetManyClassesByTutorQuery, GetManyClassesByTutorQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetManyClassesByUserQuery, GetManyClassesByUserQueryVariables>(GetManyClassesByUserDocument, options);
+          return Apollo.useLazyQuery<GetManyClassesByTutorQuery, GetManyClassesByTutorQueryVariables>(GetManyClassesByTutorDocument, options);
         }
-export type GetManyClassesByUserQueryHookResult = ReturnType<typeof useGetManyClassesByUserQuery>;
-export type GetManyClassesByUserLazyQueryHookResult = ReturnType<typeof useGetManyClassesByUserLazyQuery>;
-export type GetManyClassesByUserQueryResult = Apollo.QueryResult<GetManyClassesByUserQuery, GetManyClassesByUserQueryVariables>;
-export const LoginDocument = gql`
-    mutation Login($username: String!, $password: String!) {
-  login(loginInput: {username: $username, password: $password}) {
-    ...RegularUser
+export type GetManyClassesByTutorQueryHookResult = ReturnType<typeof useGetManyClassesByTutorQuery>;
+export type GetManyClassesByTutorLazyQueryHookResult = ReturnType<typeof useGetManyClassesByTutorLazyQuery>;
+export type GetManyClassesByTutorQueryResult = Apollo.QueryResult<GetManyClassesByTutorQuery, GetManyClassesByTutorQueryVariables>;
+export const LoginStudentDocument = gql`
+    mutation LoginStudent($username: String!, $password: String!) {
+  loginStudent(loginInput: {username: $username, password: $password}) {
+    ...RegularStudent
   }
 }
-    ${RegularUserFragmentDoc}`;
-export type LoginMutationFn = Apollo.MutationFunction<LoginMutation, LoginMutationVariables>;
-export type LoginComponentProps = Omit<ApolloReactComponents.MutationComponentOptions<LoginMutation, LoginMutationVariables>, 'mutation'>;
+    ${RegularStudentFragmentDoc}`;
+export type LoginStudentMutationFn = Apollo.MutationFunction<LoginStudentMutation, LoginStudentMutationVariables>;
+export type LoginStudentComponentProps = Omit<ApolloReactComponents.MutationComponentOptions<LoginStudentMutation, LoginStudentMutationVariables>, 'mutation'>;
 
-    export const LoginComponent = (props: LoginComponentProps) => (
-      <ApolloReactComponents.Mutation<LoginMutation, LoginMutationVariables> mutation={LoginDocument} {...props} />
+    export const LoginStudentComponent = (props: LoginStudentComponentProps) => (
+      <ApolloReactComponents.Mutation<LoginStudentMutation, LoginStudentMutationVariables> mutation={LoginStudentDocument} {...props} />
     );
     
 
 /**
- * __useLoginMutation__
+ * __useLoginStudentMutation__
  *
- * To run a mutation, you first call `useLoginMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useLoginMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useLoginStudentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useLoginStudentMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [loginMutation, { data, loading, error }] = useLoginMutation({
+ * const [loginStudentMutation, { data, loading, error }] = useLoginStudentMutation({
  *   variables: {
  *      username: // value for 'username'
  *      password: // value for 'password'
  *   },
  * });
  */
-export function useLoginMutation(baseOptions?: Apollo.MutationHookOptions<LoginMutation, LoginMutationVariables>) {
+export function useLoginStudentMutation(baseOptions?: Apollo.MutationHookOptions<LoginStudentMutation, LoginStudentMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument, options);
+        return Apollo.useMutation<LoginStudentMutation, LoginStudentMutationVariables>(LoginStudentDocument, options);
       }
-export type LoginMutationHookResult = ReturnType<typeof useLoginMutation>;
-export type LoginMutationResult = Apollo.MutationResult<LoginMutation>;
-export type LoginMutationOptions = Apollo.BaseMutationOptions<LoginMutation, LoginMutationVariables>;
+export type LoginStudentMutationHookResult = ReturnType<typeof useLoginStudentMutation>;
+export type LoginStudentMutationResult = Apollo.MutationResult<LoginStudentMutation>;
+export type LoginStudentMutationOptions = Apollo.BaseMutationOptions<LoginStudentMutation, LoginStudentMutationVariables>;
+export const LoginTutorDocument = gql`
+    mutation LoginTutor($username: String!, $password: String!) {
+  loginTutor(loginInput: {username: $username, password: $password}) {
+    ...RegularTutor
+  }
+}
+    ${RegularTutorFragmentDoc}`;
+export type LoginTutorMutationFn = Apollo.MutationFunction<LoginTutorMutation, LoginTutorMutationVariables>;
+export type LoginTutorComponentProps = Omit<ApolloReactComponents.MutationComponentOptions<LoginTutorMutation, LoginTutorMutationVariables>, 'mutation'>;
+
+    export const LoginTutorComponent = (props: LoginTutorComponentProps) => (
+      <ApolloReactComponents.Mutation<LoginTutorMutation, LoginTutorMutationVariables> mutation={LoginTutorDocument} {...props} />
+    );
+    
+
+/**
+ * __useLoginTutorMutation__
+ *
+ * To run a mutation, you first call `useLoginTutorMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useLoginTutorMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [loginTutorMutation, { data, loading, error }] = useLoginTutorMutation({
+ *   variables: {
+ *      username: // value for 'username'
+ *      password: // value for 'password'
+ *   },
+ * });
+ */
+export function useLoginTutorMutation(baseOptions?: Apollo.MutationHookOptions<LoginTutorMutation, LoginTutorMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<LoginTutorMutation, LoginTutorMutationVariables>(LoginTutorDocument, options);
+      }
+export type LoginTutorMutationHookResult = ReturnType<typeof useLoginTutorMutation>;
+export type LoginTutorMutationResult = Apollo.MutationResult<LoginTutorMutation>;
+export type LoginTutorMutationOptions = Apollo.BaseMutationOptions<LoginTutorMutation, LoginTutorMutationVariables>;
 export const MeDocument = gql`
     query Me {
   me {
-    ...RegularUser
+    id
+    username
+    firstname
+    lastname
+    birthYear
   }
 }
-    ${RegularUserFragmentDoc}`;
+    `;
 export type MeComponentProps = Omit<ApolloReactComponents.QueryComponentOptions<MeQuery, MeQueryVariables>, 'query'>;
 
     export const MeComponent = (props: MeComponentProps) => (

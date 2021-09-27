@@ -12,7 +12,6 @@ const socket = io('ws://localhost:80/stream', {
   extraHeaders: {
     token: token ? token : '',
   },
-
   // withCredentials: true,
 });
 
@@ -23,6 +22,7 @@ const ContextProvider = ({ children }) => {
   const { data } = useMeQuery();
   const [call, setCall] = useState({});
   const [myId, setMyId] = useState('');
+  const [peerId, setPeerId] = useState(null);
   const { classId } = useParams();
   const myVideo = useRef();
   const userVideo = useRef();
@@ -41,14 +41,18 @@ const ContextProvider = ({ children }) => {
       setMyId(myId);
       socket.emit('join', { classId });
     });
-
+    socket.on('welcome', (peer) => {
+      if (peer !== myId) {
+        setPeerId(peer);
+      }
+    });
     socket.on('callUser', ({ from, name: callerName, signal }) => {
       setCall({ isReceivingCall: true, from, name: callerName, signal });
     });
     return () => {};
   }, []);
 
-  const answerCall = () => {
+  const answerCall = async () => {
     setCallAccepted(true);
 
     const peer = new Peer({ initiator: false, trickle: false, stream });
@@ -64,8 +68,38 @@ const ContextProvider = ({ children }) => {
     peer.signal(call.signal);
 
     connectionRef.current = peer;
-  };
 
+    // const desktopStream = await navigator.mediaDevices.getDisplayMedia({
+    //   video: { width: 640, height: 480 },
+    //   audio: true,
+    // });
+    // const rec = new MediaRecorder(desktopStream, {
+    //   mimeType: 'video/webm; codecs=vp9',
+    // }); // mediaRecorder객체 생성
+
+    // rec.ondataavailable = (event) => {
+    //   if (event.data.size > 0) {
+    //     blobs.push(event.data);
+    //     console.log(blobs);
+    //     download();
+    //   }
+    // };
+
+    // rec.start(); // 녹화 시작
+  };
+  // function download() {
+  //   var blob = new Blob(blobs, {
+  //     type: 'video/webm',
+  //   });
+  //   var url = URL.createObjectURL(blob);
+  //   var a = document.createElement('a');
+  //   document.body.appendChild(a);
+  //   a.style = 'display: none';
+  //   a.href = url;
+  //   a.download = 'test.webm';
+  //   a.click();
+  //   window.URL.revokeObjectURL(url);
+  // }
   const callUser = (id) => {
     const peer = new Peer({ initiator: true, trickle: false, stream });
 
@@ -84,7 +118,6 @@ const ContextProvider = ({ children }) => {
 
     socket.on('callAccepted', (signal) => {
       setCallAccepted(true);
-
       peer.signal(signal);
     });
 
@@ -93,13 +126,14 @@ const ContextProvider = ({ children }) => {
 
   const leaveCall = () => {
     setCallEnded(true);
-
+    // download();
     connectionRef.current.destroy();
   };
 
   return (
     <SocketContext.Provider
       value={{
+        peerId,
         call,
         callAccepted,
         myVideo,

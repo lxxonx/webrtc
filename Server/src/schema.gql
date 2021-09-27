@@ -5,10 +5,11 @@
 type Class {
   id: ID!
   isCreated: Boolean!
+  messages: [Message!]!
   schedule: DateTime!
-  student: User
+  student: Student
   studentId: Float
-  tutor: User!
+  tutor: Tutor!
   tutorId: Float!
   videoUrl: String
 }
@@ -19,16 +20,27 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 scalar DateTime
 
 input LoginInput {
+  isTutor: Boolean = false
   password: String!
   username: String!
 }
 
+type Message {
+  class: Class!
+  classId: String!
+  createdAt: DateTime!
+  deletedAt: DateTime!
+  id: ID!
+  text: String!
+}
+
 type Mutation {
-  createSession(schedule: DateTime!): Class!
-  createUser(newUserData: NewUserInput!): User!
-  deleteUserById(id: Float!): Boolean!
-  login(loginInput: LoginInput!): User!
-  updateStudent(schedule: DateTime!, studentId: Float, tutorId: Float): Class!
+  createClass(schedule: DateTime!): Class!
+  createStudent(newStudentData: NewUserInput!): Student!
+  createTutor(newTutorData: NewUserInput!): Tutor!
+  loginStudent(loginInput: LoginInput!): Student!
+  loginTutor(loginInput: LoginInput!): Tutor!
+  logout: Boolean!
 }
 
 input NewUserInput {
@@ -41,21 +53,32 @@ input NewUserInput {
 }
 
 type Query {
-  getManyClassesByUser: [Class!]!
-  getManyUsers(skip: Int = 0, take: Int = 25): [User!]!
-  getUserById(id: Float!): User!
-  me: User
+  getManyClassesByTutor: [Class!]!
+  getStudentById(id: Float!): Student!
+  getTutorById(id: Float!): Tutor!
+  me: Tutor!
 }
 
-type User {
+type Student {
   birthYear: Float!
+  classes: [Class!]
   createdAt: DateTime!
   deletedAt: DateTime
   firstname: String!
   id: ID!
-  isTutor: Boolean!
   lastname: String
   leftClass: Float!
   updatedAt: DateTime
   username: ID!
+}
+
+type Tutor {
+  birthYear: Float!
+  classes: [Class!]
+  createdAt: DateTime!
+  firstname: String!
+  id: ID!
+  lastname: String
+  updatedAt: DateTime
+  username: String!
 }

@@ -1,9 +1,8 @@
-fragment RegularUser on User {
+fragment RegularStudent on Student {
   id
   username
   firstname
   lastname
   birthYear
-  isTutor
   leftClass
 }

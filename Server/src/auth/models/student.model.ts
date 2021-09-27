@@ -1,7 +1,8 @@
 import { Field, ID, ObjectType } from "@nestjs/graphql";
+import { Class } from "src/classes/models/class.model";
 
 @ObjectType()
-export class User {
+export class Student {
   @Field(() => ID)
   id: number;
 
@@ -17,10 +18,7 @@ export class User {
   @Field()
   birthYear: number;
 
-  @Field(() => Boolean)
-  isTutor: boolean;
-
-  @Field(() => Number)
+  @Field(() => Number, { defaultValue: 0 })
   leftClass: number;
 
   @Field()
@@ -31,4 +29,7 @@ export class User {
 
   @Field({ nullable: true })
   deletedAt?: Date;
+
+  @Field(() => [Class], { nullable: true })
+  classes?: [Class];
 }

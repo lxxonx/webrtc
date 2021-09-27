@@ -1,8 +1,10 @@
+import { useReactiveVar } from '@apollo/client';
 import { Box, Button } from '@material-ui/core';
 import React, { ReactElement } from 'react';
 import { ReactChild } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import { meVar } from '../apollo/localstate';
 
 const Wrapper = styled('div')`
   display: flex;
@@ -35,6 +37,7 @@ interface Props {
 }
 
 function Layout({ children }: Props): ReactElement {
+  const me = useReactiveVar(meVar);
   return (
     <Wrapper>
       <Sidebar>
@@ -44,8 +47,10 @@ function Layout({ children }: Props): ReactElement {
         <Link to="/chat">
           <NavButton>chat</NavButton>
         </Link>
-        <Link to="/review">
-          <NavButton>review</NavButton>
+        <Link to={me?.__typename === 'Tutor' ? '/feedback' : '/review'}>
+          <NavButton>
+            {me?.__typename === 'Tutor' ? 'feedback' : 'review'}
+          </NavButton>
         </Link>
       </Sidebar>
       <MainPage>{children}</MainPage>

@@ -1,5 +1,7 @@
 import { Field, ID, ObjectType } from "@nestjs/graphql";
-import { User } from "src/auth/models/user.model";
+import { Student } from "src/auth/models/student.model";
+import { Tutor } from "src/auth/models/tutor.model";
+import { Message } from "src/messages/models/messge.model";
 
 @ObjectType()
 export class Class {
@@ -12,18 +14,21 @@ export class Class {
   @Field(() => Date)
   schedule: Date;
 
+  @Field(() => Boolean)
+  isCreated: Boolean;
+
   @Field(() => Number, { nullable: true })
   studentId?: number;
 
-  @Field(() => User, { nullable: true })
-  student?: User;
+  @Field(() => Student, { nullable: true })
+  student?: Student;
 
   @Field(() => Number)
   tutorId: number;
 
-  @Field(() => User)
-  tutor: User;
+  @Field(() => Tutor)
+  tutor: Tutor;
 
-  @Field(() => Boolean)
-  isCreated: boolean;
+  @Field(() => [Message])
+  messages?: [Message];
 }

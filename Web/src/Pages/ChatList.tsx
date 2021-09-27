@@ -1,19 +1,19 @@
 import { Link } from '@material-ui/core';
 import React, { ReactElement } from 'react';
 import Layout from '../components/Layout';
-import { useGetManyClassesByUserQuery } from '../generated/graphql';
+import { useGetManyClassesByTutorQuery } from '../generated/graphql';
 
 interface Props {}
 
 function ChatList({}: Props): ReactElement {
-  const { data } = useGetManyClassesByUserQuery();
-  if (!data?.getManyClassesByUser) {
+  const { data } = useGetManyClassesByTutorQuery();
+  if (!data?.getManyClassesByTutor) {
     return <Layout>loading</Layout>;
   } else {
     return (
       <Layout>
         <ul>
-          {data?.getManyClassesByUser.map((el) => (
+          {data?.getManyClassesByTutor.map((el) => (
             <Link key={el.id} href={`/chat/${el.id}`}>
               {el.tutor.firstname}
             </Link>

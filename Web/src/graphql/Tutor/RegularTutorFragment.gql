@@ -1,0 +1,7 @@
+fragment RegularTutor on Tutor {
+  id
+  username
+  firstname
+  lastname
+  birthYear
+}

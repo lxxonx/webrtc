@@ -2,7 +2,6 @@ import { NotFoundException } from "@nestjs/common";
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { Socket } from "socket.io";
 import { AuthService } from "src/auth/auth.service";
-import { User } from "src/auth/models/user.model";
 import { PrismaService } from "src/prisma/prisma.service";
 import { Class } from "src/classes/models/class.model";
 
@@ -13,30 +12,30 @@ export class StreamsService {
     private authService: AuthService
   ) {}
 
-  async getUserIdFromClient(client: Socket): Promise<number> {
-    const token = client.handshake.headers.token as string;
+  // async getUserIdFromClient(client: Socket): Promise<number> {
+  //   const token = client.handshake.headers.token as string;
 
-    if (!token) {
-      throw new UnauthorizedException();
-    }
-    const userId = await this.authService.verifyToken(token);
-    if (!userId) {
-      throw new UnauthorizedException();
-    }
-    return userId;
-  }
-  async updateSocketId(client: Socket): Promise<Class> {
-    const userId = await this.getUserIdFromClient(client);
+  //   if (!token) {
+  //     throw new UnauthorizedException();
+  //   }
+  //   const userId = await this.authService.verifyToken(token);
+  //   if (!userId) {
+  //     throw new UnauthorizedException();
+  //   }
+  //   return userId;
+  // }
+  // async updateSocketId(client: Socket): Promise<Class> {
+  //   const userId = await this.getUserIdFromClient(client);
 
-    const session = await this.prisma.class.update({
-      where: { schedule_tutorId: { tutorId: userId, schedule: new Date() } },
-      data: {
-        isCreated: true,
-      },
-      include: { tutor: true },
-    });
-    return session;
-  }
+  //   const session = await this.prisma.class.update({
+  //     where: { schedule_tutorId: { tutorId: userId, schedule: new Date() } },
+  //     data: {
+  //       isCreated: true,
+  //     },
+  //     include: { tutor: true },
+  //   });
+  //   return session;
+  // }
   async getToId(classId: string): Promise<string> {
     const classVar = await this.prisma.class.findUnique({
       where: { id: classId },

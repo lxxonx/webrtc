@@ -10,4 +10,7 @@ export class LoginInput {
   @Field()
   @MaxLength(20)
   password: string;
+
+  @Field(() => Boolean, { defaultValue: false })
+  isTutor: Boolean;
 }

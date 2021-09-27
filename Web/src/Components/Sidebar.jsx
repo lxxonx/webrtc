@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import {
   Button,
   TextField,
@@ -47,10 +47,15 @@ const useStyles = makeStyles((theme) => ({
 
 const Sidebar = ({ children }) => {
   const history = useHistory();
-  const { myId, callAccepted, callEnded, leaveCall, callUser } =
+  const { peerId, myId, callAccepted, callEnded, leaveCall, callUser } =
     useContext(SocketContext);
   const [idToCall, setIdToCall] = useState('');
   const classes = useStyles();
+
+  useEffect(() => {
+    if (peerId !== myId) callUser(peerId);
+    return () => {};
+  }, [peerId]);
 
   const hangUpCall = () => {
     history.push('/review');
@@ -87,7 +92,7 @@ const Sidebar = ({ children }) => {
                 onChange={(e) => setIdToCall(e.target.value)}
                 fullWidth
               />
-              {callAccepted && !callEnded ? (
+              {callAccepted && !callEnded && (
                 <Button
                   variant="contained"
                   color="secondary"
@@ -97,17 +102,6 @@ const Sidebar = ({ children }) => {
                   className={classes.margin}
                 >
                   Hang Up
-                </Button>
-              ) : (
-                <Button
-                  variant="contained"
-                  color="primary"
-                  startIcon={<Phone fontSize="large" />}
-                  fullWidth
-                  onClick={() => callUser(idToCall)}
-                  className={classes.margin}
-                >
-                  Call
                 </Button>
               )}
             </Grid>

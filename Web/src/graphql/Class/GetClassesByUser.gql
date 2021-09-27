@@ -1,5 +1,5 @@
-query GetManyClassesByUser {
-  getManyClassesByUser {
+query GetManyClassesByTutor {
+  getManyClassesByTutor {
     id
     tutor {
       id
