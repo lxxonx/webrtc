@@ -1,5 +1,0 @@
-mutation LoginTutor($username: String!, $password: String!) {
-  loginTutor(loginInput: { username: $username, password: $password }) {
-    ...RegularTutor
-  }
-}

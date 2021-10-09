@@ -1,9 +1,0 @@
-query Me {
-  me {
-    id
-    username
-    firstname
-    lastname
-    birthYear
-  }
-}

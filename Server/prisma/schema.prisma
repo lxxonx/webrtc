@@ -47,8 +47,10 @@ model Class {
   videoUrl  String?
   schedule  DateTime
   isCreated Boolean   @default(false)
+  studentSocket String  @default("")
   studentId Int?
   student   Student?  @relation(fields: [studentId], references: [id])
+  tutorSocket String  @default("")
   tutorId   Int
   tutor     Tutor     @relation(fields: [tutorId], references: [id])
   messages  Message[]

@@ -5,8 +5,7 @@ import { AuthModule } from "./auth/auth.module";
 import { FastifyReply, FastifyRequest } from "fastify";
 import { ClassModule } from "./classes/classes.module";
 import { PrismaModule } from "./prisma/prisma.module";
-import { StreamsModule } from "./streams/streams.module";
-import { MessagesModule } from './messages/messages.module';
+import { MessagesModule } from "./messages/messages.module";
 
 @Module({
   imports: [
@@ -28,7 +27,6 @@ import { MessagesModule } from './messages/messages.module';
     AuthModule,
     ClassModule,
     PrismaModule,
-    StreamsModule,
     MessagesModule,
   ],
 })
