@@ -1,4 +1,7 @@
 {
+  "engines": {
+    "node": "16.8.0"
+  },
   "name": "graphql",
   "version": "0.0.1",
   "description": "",
@@ -7,6 +10,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "prebuild": "rimraf dist",
+    "postinstall": "npm run build",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",

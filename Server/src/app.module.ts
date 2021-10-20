@@ -12,7 +12,6 @@ import { MessagesModule } from "./messages/messages.module";
     GraphQLModule.forRoot({
       autoSchemaFile: join(process.cwd(), "src/schema.gql"),
       sortSchema: true,
-
       context: ({ request, reply }) => {
         return {
           request: request as FastifyRequest,

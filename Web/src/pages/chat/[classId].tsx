@@ -1,21 +1,17 @@
 import React, { ReactElement } from "react";
-import Layout from "../../components/Layout";
 import StreamProvider, { useStream } from "../../context/StreamProvider";
-import { styled } from "@mui/material";
+import Video from "../../components/chat/Video";
+import Note from "../../components/chat/Note";
+import Layout from "../../components/Layout";
 
-const Video = styled("video")`
-  width: 100px;
-  height: 100px;
-`;
 interface Props {}
 
 function Chat({}: Props): ReactElement {
-  const { userVideo } = useStream();
-
   return (
     <StreamProvider>
       <Layout>
-        <Video playsInline autoPlay ref={userVideo} />
+        <Video />
+        <Note />
       </Layout>
     </StreamProvider>
   );

@@ -53,10 +53,10 @@ input NewUserInput {
 }
 
 type Query {
+  getCurrentUser: Tutor!
   getManyClassesByTutor: [Class!]!
   getStudentById(id: Float!): Student!
   getTutorById(id: Float!): Tutor!
-  me: Tutor!
 }
 
 type Student {

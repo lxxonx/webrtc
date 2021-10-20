@@ -32,41 +32,49 @@ export class ClassesGateway {
     client.emit("Error", new UnauthorizedException());
     client.disconnect();
   }
-  @SubscribeMessage("connection")
-  handleConnection(@ConnectedSocket() client: Socket) {}
 
-  @SubscribeMessage("join")
+  @SubscribeMessage("join-room")
   async handleJoin(
     @ConnectedSocket() client: Socket,
     @MessageBody() { classId }
   ) {
-    console.log(classId);
+    if (!classId) {
+      return this.disconnect(client);
+    }
     try {
       const tokens: string[] = client.handshake.headers.cookie.split("; ");
-      let accessTokenFound = false;
       tokens.forEach(async (t) => {
         const [key, token] = t.split("=");
-        if (key == "TOKEN") {
-          accessTokenFound = true;
+        if (key === "refresh") {
           const decodedToken = await this.authService.findUserByToken(token);
           if (!decodedToken) {
             return this.disconnect(client);
           } else {
-            const socketInfo = JSON.stringify(client);
+            const classInfo = await this.prismaService.class.findUnique({
+              where: { id: classId },
+            });
             if (decodedToken.username.startsWith("$t_")) {
+              if (classInfo.tutorId !== decodedToken.id) {
+                return this.disconnect(client);
+              }
               await this.prismaService.class.update({
                 where: { id: classId },
                 data: {
-                  tutorSocket: socketInfo,
+                  tutorSocket: client.id,
                 },
               });
+              return client.emit("ready-student");
             } else {
+              if (classInfo.studentId !== decodedToken.id) {
+                return this.disconnect(client);
+              }
               await this.prismaService.class.update({
                 where: { id: classId },
                 data: {
-                  studentSocket: socketInfo,
+                  studentSocket: client.id,
                 },
               });
+              return client.emit("ready-student");
             }
           }
         }
@@ -74,11 +82,152 @@ export class ClassesGateway {
     } catch {
       return this.disconnect(client);
     }
-    return this.server.to(classId).emit("welcome", ...client.rooms);
   }
 
   @SubscribeMessage("answer-call")
-  handleAnswerCall(@MessageBody() { to, signal }) {
-    return this.server.to(to).emit("callAccepted", signal);
+  handleAnswerCall(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() { signal, classId }
+  ) {
+    if (!classId) {
+      return this.disconnect(client);
+    }
+    try {
+      const tokens: string[] = client.handshake.headers.cookie.split("; ");
+      tokens.forEach(async (t) => {
+        const [key, token] = t.split("=");
+        if (key === "refresh") {
+          const decodedToken = await this.authService.findUserByToken(token);
+          if (!decodedToken) {
+            return this.disconnect(client);
+          } else {
+            const classInfo = await this.prismaService.class.findUnique({
+              where: { id: classId },
+            });
+            if (decodedToken.username.startsWith("$t_")) {
+              if (classInfo.tutorId !== decodedToken.id) {
+                return this.disconnect(client);
+              }
+              if (!classInfo.studentSocket) {
+                return this.disconnect(client);
+              }
+
+              return this.server
+                .to(classInfo.studentSocket)
+                .emit("call-accepted", signal);
+            } else {
+              if (classInfo.studentId !== decodedToken.id) {
+                return this.disconnect(client);
+              }
+              if (!classInfo.tutorSocket) {
+                return this.disconnect(client);
+              }
+
+              return this.server
+                .to(classInfo.tutorSocket)
+                .emit("call-accepted", signal);
+            }
+          }
+        }
+      });
+    } catch (e) {
+      console.log(e);
+
+      return this.disconnect(client);
+    }
   }
+
+  @SubscribeMessage("call-user")
+  handleCallUser(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() { signal, classId }
+  ) {
+    if (!classId) {
+      return this.disconnect(client);
+    }
+    try {
+      const tokens: string[] = client.handshake.headers.cookie.split("; ");
+      tokens.forEach(async (t) => {
+        const [key, token] = t.split("=");
+        if (key === "refresh") {
+          const decodedToken = await this.authService.findUserByToken(token);
+          if (!decodedToken) {
+            return this.disconnect(client);
+          } else {
+            const classInfo = await this.prismaService.class.findUnique({
+              where: { id: classId },
+            });
+            if (decodedToken.username.startsWith("$t_")) {
+              if (classInfo.tutorId !== decodedToken.id) {
+                return this.disconnect(client);
+              }
+              if (!classInfo.studentSocket) {
+                return this.disconnect(client);
+              }
+              return this.server.to(classInfo.studentSocket).emit("call-init", {
+                signal,
+                name: decodedToken.username.slice(3),
+              });
+            } else {
+              if (classInfo.studentId !== decodedToken.id) {
+                return this.disconnect(client);
+              }
+              if (!classInfo.tutorSocket) {
+                return this.disconnect(client);
+              }
+              return this.server
+                .to(classInfo.tutorSocket)
+                .emit("call-init", { signal, name: decodedToken.username });
+            }
+          }
+        }
+      });
+    } catch (e) {
+      console.log(e);
+      return this.disconnect(client);
+    }
+  }
+
+  // @SubscribeMessage("disconnect")
+  // handleDisconnect(
+  //   @ConnectedSocket() client: Socket,
+  // @MessageBody() { signal, classId }
+  // ) {
+  // if (!classId) {
+  //   return this.disconnect(client);
+  // }
+  // try {
+  //   const tokens: string[] = client.handshake.headers.cookie.split("; ");
+  //   tokens.forEach(async (t) => {
+  //     const [key, token] = t.split("=");
+  //     if (key === "refresh") {
+  //       const decodedToken = await this.authService.findUserByToken(token);
+  //       if (!decodedToken) {
+  //         return this.disconnect(client);
+  //       } else {
+  //         const classInfo = await this.prismaService.class.findUnique({
+  //           where: { id: classId },
+  //         });
+  //         if (decodedToken.username.startsWith("$t_")) {
+  //           if (classInfo.tutorId !== decodedToken.id) {
+  //             return this.disconnect(client);
+  //           }
+  //           if (!classInfo.studentSocket) {
+  //             return this.disconnect(client);
+  //           }
+  //         } else {
+  //           if (classInfo.studentId !== decodedToken.id) {
+  //             return this.disconnect(client);
+  //           }
+  //           if (!classInfo.tutorSocket) {
+  //             return this.disconnect(client);
+  //           }
+  //         }
+  //       }
+  //     }
+  //   });
+  // } catch {
+  //   return this.disconnect(client);
+  // }
+  // }
 }

@@ -16,6 +16,6 @@ async function bootstrap() {
   app.register(fastifyCookie, {
     secret: process.env.COOKIE_SECRET,
   });
-  await app.listen(4000);
+  await app.listen(process.env.PORT || 4000);
 }
 bootstrap();

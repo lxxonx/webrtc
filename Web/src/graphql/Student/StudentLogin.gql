@@ -1,0 +1,5 @@
+mutation StudentLogin($username: String!, $password: String!) {
+  loginStudent(loginInput: { username: $username, password: $password }) {
+    ...RegularStudent
+  }
+}

@@ -22,6 +22,7 @@ export class ClassesService {
   }
 
   async updateStudent(studentId: number, tutorId: number, schedule: Date) {
+    // 이미 학생이 등록되었으면 등록 못하도록
     return this.prisma.class.update({
       where: {
         schedule_tutorId: {

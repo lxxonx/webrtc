@@ -5,7 +5,7 @@ import { LoginInput } from "./Dto/login.input";
 import { NewUserInput } from "./Dto/new-user.input";
 import { Student } from "./models/student.model";
 import { Tutor } from "./models/tutor.model";
-
+import { FieldError } from "../common/Dto/fieldError.model";
 @Resolver()
 export class AuthResolver {
   constructor(private readonly authService: AuthService) {}
@@ -86,10 +86,24 @@ export class AuthResolver {
       return false;
     }
   }
-  @Query(() => Tutor || Student)
-  async me(@Context() { response }) {
-    return this.authService.findUserByToken(
-      response.request.cookies["refresh"]
-    );
+  @Query(() => Tutor || Student || FieldError)
+  async getCurrentUser(@Context() { response }) {
+    try {
+      const user = await this.authService.findUserByToken(
+        response.request.cookies["refresh"]
+      );
+      if (!user) {
+        return {
+          error: true,
+          message: "user not found",
+        };
+      }
+      return user;
+    } catch (e) {
+      return {
+        error: true,
+        message: e,
+      };
+    }
   }
 }
